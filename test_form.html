@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Ajout Étudiant</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { padding: 8px; width: 300px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .error { color: red; margin-top: 5px; }
+        .success { color: green; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Test Ajout Étudiant</h1>
+    
+    <form id="studentForm">
+        <div class="form-group">
+            <label for="student_id">ID Étudiant:</label>
+            <input type="text" id="student_id" name="student_id" required>
+            <div class="error" id="student_id_error"></div>
+        </div>
+        
+        <div class="form-group">
+            <label for="name">Nom Complet:</label>
+            <input type="text" id="name" name="name" required>
+            <div class="error" id="name_error"></div>
+        </div>
+        
+        <div class="form-group">
+            <label for="group">Groupe:</label>
+            <input type="text" id="group" name="group" required>
+            <div class="error" id="group_error"></div>
+        </div>
+        
+        <button type="submit">Ajouter l'étudiant</button>
+    </form>
+    
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('studentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch('add_student.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                if (data.success) {
+                    resultDiv.innerHTML = `<div class="success">${data.message}</div>`;
+                    document.getElementById('studentForm').reset();
+                } else {
+                    let errorsHtml = '';
+                    if (data.errors) {
+                        errorsHtml = data.errors.map(error => `<div class="error">${error}</div>`).join('');
+                    }
+                    resultDiv.innerHTML = `<div class="error">${data.message}</div>${errorsHtml}`;
+                }
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = `<div class="error">Erreur: ${error}</div>`;
+            });
+        });
+    </script>
+</body>
+</html>
