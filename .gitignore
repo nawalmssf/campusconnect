@@ -1,0 +1,15 @@
+# Fichiers système
+*.log
+*.tmp
+.DS_Store
+
+# Configurations locales
+config.php
+
+# Dossiers générés par l’IDE
+.vscode/
+node_modules/
+
+# Bases de données locales
+*.sql
+*.json
