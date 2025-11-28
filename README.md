@@ -11,7 +11,7 @@ Système complet de gestion des étudiants, présence et sessions académiques.
 - Chart.js
 
 ## 🚀 Installation
-1. Installer XAMPP/WAMP
+1. Installer XAMPP
 2. Importer la base de données
 3. Placer les fichiers dans `htdocs/campusconnect/`
 4. Accéder à `http://localhost/campusconnect/`
