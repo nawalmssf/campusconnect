@@ -19,7 +19,7 @@ Système complet de gestion des étudiants, présence et sessions académiques, 
 ## 🚀 Installation
 
 ### Prérequis
-1. **XAMPP** ou **WAMP** installé
+1. **XAMPP**  installé
 2. **PHP 8.0+**
 3. **MySQL**
 
