@@ -1,5 +1,4 @@
 // ===== DONNÉES =====
-// Utiliser les données de la base de données si disponibles, sinon utiliser les données de test
 let students = (typeof studentsData !== 'undefined' && Array.isArray(studentsData) && studentsData.length > 0)
     ? studentsData.map(s => ({
         id: s.id || '',
@@ -37,8 +36,190 @@ let students = (typeof studentsData !== 'undefined' && Array.isArray(studentsDat
         }
     ];
 
-// Variables pour les graphiques
+// Variables pour les graphiques et le tri
 let attendanceChart, participationChart;
+let currentSortMode = 'none';
+
+// ===== EXERCICE 7: RECHERCHE ET TRI =====
+
+// Fonction de recherche par nom (Exercice 7 - Point 1)
+function initSearchByName() {
+    const searchInput = document.getElementById('searchByName');
+    if (!searchInput) return;
+    
+    searchInput.addEventListener('keyup', function() {
+        const searchValue = this.value.toLowerCase();
+        
+        // Utiliser jQuery .filter() comme demandé
+        $('#tableBody tr').filter(function() {
+            const lastName = $(this).find('td:eq(0)').text().toLowerCase();
+            const firstName = $(this).find('td:eq(1)').text().toLowerCase();
+            const fullName = lastName + ' ' + firstName;
+            
+            // Afficher/masquer selon la recherche
+            const matches = fullName.indexOf(searchValue) > -1;
+            $(this).toggle(matches);
+        });
+        
+        // Mettre à jour le compteur de résultats
+        const visibleRows = $('#tableBody tr:visible').length;
+        const totalRows = $('#tableBody tr').length;
+        updateSearchResultMessage(visibleRows, totalRows, searchValue);
+    });
+}
+
+// Message de résultats de recherche
+function updateSearchResultMessage(visible, total, searchTerm) {
+    let message = document.getElementById('searchResultMessage');
+    if (!message) {
+        message = document.createElement('div');
+        message.id = 'searchResultMessage';
+        const searchContainer = document.querySelector('.search-container');
+        if (searchContainer) {
+            searchContainer.appendChild(message);
+        }
+    }
+    
+    if (searchTerm === '') {
+        message.textContent = `Affichage de tous les étudiants (${total})`;
+    } else {
+        message.textContent = `${visible} résultat(s) sur ${total} pour "${searchTerm}"`;
+    }
+}
+
+// Fonction de tri par absences (Exercice 7 - Point 2)
+function sortByAbsencesAscending() {
+    console.log('🔼 TRI PAR ABSENCES (CROISSANT)');
+    currentSortMode = 'absences-asc';
+    
+    const tbody = document.getElementById('tableBody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    // Trier les lignes
+    rows.sort((a, b) => {
+        const absencesA = getAbsencesCount(a);
+        const absencesB = getAbsencesCount(b);
+        return absencesA - absencesB; // Ordre croissant
+    });
+    
+    // Réorganiser le tableau
+    rows.forEach(row => tbody.appendChild(row));
+    
+    // Afficher le message de tri
+    updateSortMessage('absences (croissant)');
+    
+    // Animation visuelle
+    animateSortedRows();
+}
+
+// Fonction de tri par participation (Exercice 7 - Point 2)
+function sortByParticipationDescending() {
+    console.log('🔽 TRI PAR PARTICIPATION (DÉCROISSANT)');
+    currentSortMode = 'participation-desc';
+    
+    const tbody = document.getElementById('tableBody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    // Trier les lignes
+    rows.sort((a, b) => {
+        const participationA = getParticipationCount(a);
+        const participationB = getParticipationCount(b);
+        return participationB - participationA; // Ordre décroissant
+    });
+    
+    // Réorganiser le tableau
+    rows.forEach(row => tbody.appendChild(row));
+    
+    // Afficher le message de tri
+    updateSortMessage('participation (décroissant)');
+    
+    // Animation visuelle
+    animateSortedRows();
+}
+
+// Obtenir le nombre d'absences d'une ligne
+function getAbsencesCount(row) {
+    const absencesCell = row.querySelector('.absences-count');
+    if (!absencesCell) return 0;
+    const text = absencesCell.textContent.trim();
+    return parseInt(text.split(' ')[0]) || 0;
+}
+
+// Obtenir le nombre de participations d'une ligne
+function getParticipationCount(row) {
+    const participationCell = row.querySelector('.participations-count');
+    if (!participationCell) return 0;
+    const text = participationCell.textContent.trim();
+    return parseInt(text.split(' ')[0]) || 0;
+}
+
+// Message de tri actuel (Exercice 7 - Point 4)
+function updateSortMessage(mode) {
+    let message = document.getElementById('sortMessage');
+    if (!message) {
+        message = document.createElement('div');
+        message.id = 'sortMessage';
+        message.className = 'sort-message';
+        const tableContainer = document.querySelector('.table-container');
+        if (tableContainer) {
+            tableContainer.insertBefore(message, tableContainer.firstChild);
+        }
+    }
+    
+    message.innerHTML = `
+        <i class="fas fa-info-circle"></i> 
+        <strong>Currently sorted by:</strong> ${mode}
+    `;
+    message.style.display = 'block';
+    
+    // Animation d'apparition
+    message.style.animation = 'fadeIn 0.5s ease';
+}
+
+// Animation des lignes triées
+function animateSortedRows() {
+    $('#tableBody tr').each(function(index) {
+        $(this).css({
+            animation: `fadeInUp 0.5s ease ${index * 0.05}s`,
+            animationFillMode: 'backwards'
+        });
+    });
+    
+    setTimeout(() => {
+        $('#tableBody tr').css('animation', '');
+    }, 2000);
+}
+
+// Réinitialiser le tri
+function resetSort() {
+    console.log('🔄 RÉINITIALISATION DU TRI');
+    currentSortMode = 'none';
+    
+    // Réafficher toutes les lignes
+    $('#tableBody tr').show();
+    
+    // Re-rendre le tableau dans l'ordre original
+    renderTable();
+    
+    // Masquer le message de tri
+    const sortMessage = document.getElementById('sortMessage');
+    if (sortMessage) {
+        sortMessage.style.display = 'none';
+    }
+    
+    // Réinitialiser la recherche
+    const searchInput = document.getElementById('searchByName');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    
+    const searchMessage = document.getElementById('searchResultMessage');
+    if (searchMessage) {
+        searchMessage.textContent = `Affichage de tous les étudiants (${students.length})`;
+    }
+    
+    showNotification('🔄 Tri et recherche réinitialisés');
+}
 
 // ===== EXERCICE 6: FONCTIONS JQUERY =====
 $(document).ready(function() {
@@ -176,7 +357,7 @@ function showPage(pageId) {
         btn.classList.remove('active');
     });
 
-    // Activate correct nav button (safe)
+    // Activate correct nav button
     const navBtn = document.querySelector(`.nav-btn[onclick="showPage('${pageId}')"]`);
     if (navBtn) navBtn.classList.add('active');
 
@@ -196,7 +377,6 @@ function showPage(pageId) {
         generateReport();
     }
 }
-
 
 // ===== FONCTIONS DU TABLEAU =====
 function calculateStats() {
@@ -308,30 +488,21 @@ function renderTable() {
     });
 
     calculateStats();
+    
+    // Initialiser le message de recherche
+    updateSearchResultMessage(students.length, students.length, '');
 }
 
 // ===== FONCTIONS POUR COCHER/DÉCOCHER =====
 function togglePresence(studentIndex, sessionIndex) {
-    console.log(`📝 Modification présence: Étudiant ${studentIndex}, Session ${sessionIndex}`);
-    
     students[studentIndex].presence[sessionIndex] = !students[studentIndex].presence[sessionIndex];
-    
-    // Mettre à jour l'affichage
     updateStudentRow(studentIndex);
-    
-    // Recalculer les stats
     calculateStats();
 }
 
 function toggleParticipation(studentIndex, sessionIndex) {
-    console.log(`🎯 Modification participation: Étudiant ${studentIndex}, Session ${sessionIndex}`);
-    
     students[studentIndex].participation[sessionIndex] = !students[studentIndex].participation[sessionIndex];
-    
-    // Mettre à jour l'affichage
     updateStudentRow(studentIndex);
-    
-    // Recalculer les stats
     calculateStats();
 }
 
@@ -340,13 +511,12 @@ function updateStudentRow(studentIndex) {
     const absences = student.presence.filter(p => !p).length;
     const participations = student.participation.filter(p => p).length;
     
-    // Trouver la ligne de l'étudiant
     const row = document.querySelector(`tr[data-student-index="${studentIndex}"]`);
     if (!row) return;
     
     // Mettre à jour les cases de présence
     student.presence.forEach((present, sessionIndex) => {
-        const cell = row.cells[2 + sessionIndex]; // +2 pour skip nom/prénom
+        const cell = row.cells[2 + sessionIndex];
         const checkbox = cell.querySelector('.presence-checkbox');
         const span = cell.querySelector('span');
         
@@ -357,7 +527,7 @@ function updateStudentRow(studentIndex) {
     
     // Mettre à jour les cases de participation
     student.participation.forEach((participated, sessionIndex) => {
-        const cell = row.cells[8 + sessionIndex]; // +8 pour skip nom/prénom + présence
+        const cell = row.cells[8 + sessionIndex];
         const checkbox = cell.querySelector('.participation-checkbox');
         const span = cell.querySelector('span');
         
@@ -379,7 +549,6 @@ function updateStudentRow(studentIndex) {
     const messageClass = getMessageClass(absences);
     const message = generateMessage(absences, participations);
     
-    // Mettre à jour les classes de la ligne
     row.className = statusClass;
     messageCell.className = `${messageClass} student-message`;
     messageCell.textContent = message;
@@ -479,7 +648,10 @@ function createCharts(totalStudents, presentStudents, participatingStudents, att
 }
 
 // ===== VALIDATION DU FORMULAIRE =====
-const form = document.getElementById('studentForm');
+const matriculeInput = document.getElementById('matricule');
+const fullnameInput = document.getElementById('fullname');
+const groupInput = document.getElementById('group_id');
+
 const patterns = {
     studentId: /^\d+$/,
     name: /^[A-Za-zÀ-ÿ\s'-]+$/,
@@ -513,18 +685,11 @@ function showError(inputElement, errorElement, isValid) {
     }
 }
 
-// Validation du formulaire d'ajout d'étudiant
-const matriculeInput = document.getElementById('matricule');
-const fullnameInput = document.getElementById('fullname');
-const groupInput = document.getElementById('group_id');
-
 if (matriculeInput) {
     matriculeInput.addEventListener('input', function() {
         const isValid = validateStudentId(this.value);
         const errorEl = document.getElementById('matriculeError');
-        if (errorEl) {
-            showError(this, errorEl, isValid);
-        }
+        if (errorEl) showError(this, errorEl, isValid);
     });
 }
 
@@ -532,9 +697,7 @@ if (fullnameInput) {
     fullnameInput.addEventListener('input', function() {
         const isValid = validateName(this.value);
         const errorEl = document.getElementById('fullnameError');
-        if (errorEl) {
-            showError(this, errorEl, isValid);
-        }
+        if (errorEl) showError(this, errorEl, isValid);
     });
 }
 
@@ -542,46 +705,36 @@ if (groupInput) {
     groupInput.addEventListener('input', function() {
         const isValid = validateGroup(this.value);
         const errorEl = document.getElementById('groupError');
-        if (errorEl) {
-            showError(this, errorEl, isValid);
-        }
+        if (errorEl) showError(this, errorEl, isValid);
     });
 }
 
-function splitFullName(fullName) {
-    const trimmed = fullName.trim();
-    if (!trimmed) {
-        return { lastName: '', firstName: '' };
-    }
-    const parts = trimmed.split(/\s+/);
-    const lastName = parts[0];
-    const firstName = parts.slice(1).join(' ');
-    return { lastName, firstName };
-}
-
-// Validation du formulaire avant soumission
-if (form) {
-    form.addEventListener('submit', function(e) {
-        const matricule = matriculeInput ? matriculeInput.value : '';
-        const fullname = fullnameInput ? fullnameInput.value : '';
-        const group = groupInput ? groupInput.value : '';
-
-        // Validation avant soumission
-        if (!validateStudentId(matricule) || !validateName(fullname) || !validateGroup(group)) {
-            e.preventDefault();
-            alert('Veuillez corriger les erreurs dans le formulaire avant de soumettre.');
-            return false;
-        }
-
-        // Si toutes les validations passent, laisser le formulaire se soumettre normalement
-        return true;
-    });
-}
-
-// Initialisation
+// ===== INITIALISATION EXERCICE 7 =====
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 APPLICATION DÉMARRÉE');
+    console.log('🔍 INITIALISATION EXERCICE 7 - Recherche et Tri');
+    
     renderTable();
+    
+    // Attendre que le tableau soit rendu
+    setTimeout(() => {
+        initSearchByName();
+        
+        // Ajouter les événements aux boutons de tri
+        const sortAbsencesBtn = document.getElementById('sortByAbsences');
+        const sortParticipationBtn = document.getElementById('sortByParticipation');
+        const resetSortBtn = document.getElementById('resetSort');
+        
+        if (sortAbsencesBtn) {
+            sortAbsencesBtn.addEventListener('click', sortByAbsencesAscending);
+        }
+        
+        if (sortParticipationBtn) {
+            sortParticipationBtn.addEventListener('click', sortByParticipationDescending);
+        }
+        
+        if (resetSortBtn) {
+            resetSortBtn.addEventListener('click', resetSort);
+        }
+    }, 500);
 });
-
-

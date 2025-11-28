@@ -118,6 +118,45 @@ foreach ($students as $student) {
                 </div>
             </div>
 
+            <!-- ===== EXERCICE 7: SECTION DE RECHERCHE ET TRI ===== -->
+            <div class="search-container">
+                <div class="search-header">
+                    <div class="search-input-group">
+                        <label for="searchByName">
+                            <i class="fas fa-search"></i> Search by Name
+                        </label>
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-search search-icon"></i>
+                            <input 
+                                type="text" 
+                                id="searchByName" 
+                                placeholder="Tapez un nom ou prénom pour filtrer..."
+                                autocomplete="off"
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="sort-buttons-group">
+                        <button class="sort-btn sort-btn-asc" id="sortByAbsences">
+                            <i class="fas fa-sort-amount-up"></i>
+                            Sort by Absences (Ascending)
+                        </button>
+                        
+                        <button class="sort-btn sort-btn-desc" id="sortByParticipation">
+                            <i class="fas fa-sort-amount-down"></i>
+                            Sort by Participation (Descending)
+                        </button>
+                        
+                        <button class="sort-btn sort-btn-reset" id="resetSort">
+                            <i class="fas fa-undo"></i>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="searchResultMessage"></div>
+            </div>
+
             <div class="table-container">
                 <div class="table-header">
                     <h2 class="table-title"><i class="fas fa-clipboard-list"></i> Tableau de Présence Détaillé</h2>
@@ -150,6 +189,8 @@ foreach ($students as $student) {
                 </table>
             </div>
         </section>
+
+        <!-- Page Formulaire -->
         <section id="formulaire" class="page">
             <div class="form-container">
                 <h2 class="form-title">
@@ -209,6 +250,8 @@ foreach ($students as $student) {
                 </form>
             </div>
         </section>
+
+        <!-- Page Gestion -->
         <section id="gestion" class="page">
             <div class="table-container">
                 <h2 class="table-title">
@@ -253,6 +296,8 @@ foreach ($students as $student) {
                 <?php endif; ?>
             </div>
         </section>
+
+        <!-- Page Sessions -->
         <section id="sessions" class="page">
             <div class="table-container">
                 <h2 class="table-title">
@@ -267,6 +312,8 @@ foreach ($students as $student) {
                 </div>
             </div>
         </section>
+
+        <!-- Page Rapport -->
         <section id="rapport" class="page">
             <div class="report-container">
                 <h2 class="report-title"><i class="fas fa-chart-bar"></i> Rapports et Statistiques</h2>
